@@ -1,0 +1,18 @@
+.section {
+    width: 100%;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+}
+
+.load-users {
+    display: flex;
+    justify-content: center;
+}
+
+.users__item {
+    display: flex;
+    background-color: rgb(78, 231, 111);
+}
