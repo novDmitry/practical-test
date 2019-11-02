@@ -1,106 +1,122 @@
 class Users {
     constructor($root) {
         this.$button = $root.find('[data-users-load]');
-        this.$container = $root.find('[data-users-container]');
-        this.$element = this.$container.find('[data-users-elem]');
-        this.$userStats = $root.find('[data-users-stats]');
+        this.$container = $root.find('[data-container]');
         this.$searchInput = $root.find('[data-search]');
-
-        this.arrayNat = [];
 
         this.loadUsers();
     }
 
     loadUsers() {
         this.$button.on('click', () => {
-            const randomNumber = Math.floor(Math.random() * 10) + 1;
             this.preloader(true)
 
-            $.ajax({
-                url: `https://randomuser.me/api/?results=${randomNumber}`,
-                dataType: 'json',
-                success: (response) => {
+            fetch(`https://randomuser.me/api/?results=${Math.floor(Math.random() * 5)}`).then(response => response.json()).then(response => {
+                this.array = response.results;
+                setTimeout(() => {
                     this.preloader(false)
-                    console.log(response.results);
-                    // this.$elementImg.attr('src', response.results[0].picture.medium);
-                    this.array = response.results;
-                    this.initGrid();
-                }
+                    this.initGrid(this.array);
+                    this.initFilter();
+                }, 1000)
             });
         })
     }
 
-    preloader(type) {
-        if (type) {
-            this.$container.addClass('load');
+    preloader(state, type) {
+        if (state) {
+            this.$button.addClass('load');
         } else {
-            this.$container.removeClass('load');
+            this.$button.addClass('load-end');
         }
     }
 
-    initGrid() {
-        this.array.forEach((element, i) => {
+    initGrid(array) {
+        let arrayGrid = [];
+        let template = '';
 
-            this.template = `<div class='users__item'>
-            <div class='users__img'>
-                <img src='${element.picture.large}'>
-            </div>
-                <div class='users__info-block'>
-                    <div class='users__info'>
-                        ${element.name.title}
-                        ${element.name.first}
-                        ${element.name.last}
-                        ${element.gender}
-                    </div>
-                    <div class='users__info'>
-                        ${element.phone}
-                    </div>
-                    <div class='users__info'>
-                        ${element.email}
-                    </div>
-                    <div class='users__info'>
-                        ${element.location.state}
-                        ${element.location.city}
-                        ${element.location.street.name}
-                        ${element.location.street.number}
-                    </div>
-                    <div class='users__info'>
-                        ${element.dob.date}
-                        ${element.registered.date}
-                    </div>
-                </div>
-            </div>`;
-            this.$container.append(this.template);
+        let arrayMan = [];
+        let arrayWoman = [];
 
-            this.arrayNat.push(this.arrayNat.includes(element.nat) ? false : element.nat);
+        let arrayNat = [];
+        let arrayNatLenght = [];
+        let templateNat = '';
+        let indexNat = 0;
 
-            this.arrayNatLenght = this.array.filter(item => item.nat === element.nat);
-        
-            this.templateNat = `<div class='users-stats__text'>${this.arrayNat[i] + this.arrayNatLenght.length}</div>`
+        array.forEach((element, i) => {
+            template += `
+                            <div class='user'>
+                                <div class='user__img'>
+                                    <img src='${element.picture.large}'>
+                                </div>
+                                <div class='user__info-block'>
+                                    <div class='user__info'>
+                                        ${element.name.title}
+                                        ${element.name.first}
+                                        ${element.name.last}
+                                        ${element.gender}
+                                    </div>
+                                    <div class='user__info'>
+                                        ${element.phone}
+                                    </div>
+                                    <div class='user__info'>
+                                        ${element.email}
+                                    </div>
+                                    <div class='user__info'>
+                                        ${element.location.state}
+                                        ${element.location.city}
+                                        ${element.location.street.name}
+                                        ${element.location.street.number}
+                                    </div>
+                                    <div class='user__info'>
+                                        ${new Date(element.dob.date).toLocaleDateString()}
+                                    </div>
+                                    <div class='user__info'>
+                                        ${new Date(element.registered.date).toLocaleDateString()}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
 
-            this.$userStats.append(this.arrayNat[i] ? this.templateNat : null);
+
+            if (element.gender === 'male') {
+                arrayMan.push(element);
+            } else if (element.gender === 'female') {
+                arrayWoman.push(element)
+            }
+
+            if (!arrayNat.includes(element.nat)) {
+                arrayNat.push(element.nat);
+                arrayNatLenght = array.filter(item => item.nat === element.nat);
+                templateNat += `<div class='users-stats'>${arrayNat[indexNat++] + ` ` + arrayNatLenght.length}</div>`;
+            }
+
         });
 
-        this.arrayMan = this.array.filter(item => item.gender === 'male');
-        this.arrayWoman = this.array.filter(item => item.gender === 'female');
-        this.arrayTelegram = this.array.filter(item => item.login.username);
+        let compareGender;
+        if (arrayMan.length === arrayWoman.length) {
+            compareGender = `Men and women is equal`;
+        } else if (arrayMan.length > arrayWoman.length) {
+            compareGender = `More men`;
+        } else if (arrayMan.length < arrayWoman.length) {
+            compareGender = `More woman`;
+        }
 
+        let templateStats = `
+                            <div class='users-stats'>All users - ${array.length}</div>
+                            <div class='users-stats'>Man - ${arrayMan.length}</div>
+                            <div class='users-stats'>Woman - ${arrayWoman.length}</div>
+                            <div class='users-stats'>${compareGender}</div>
+                        `;
 
-        this.templateStats = `<div class='users-stats'>
-            <div class='users-stats__text'>All users ${this.array.length}</div>
-            <div class='users-stats__text'>Man ${this.arrayMan.length}</div>
-            <div class='users-stats__text'>Woman ${this.arrayWoman.length}</div>
-            <div class='users-stats__text'> ${ this.arrayMan.length > this.arrayWoman.length ? 'Man': 'Woman' }</div>
-            <div class='users-stats__text'>Telegram ${this.arrayTelegram.length}</div>
-        </div>`;
+        arrayGrid.push(template);
+        arrayGrid.push(templateStats);
+        arrayGrid.push(templateNat);
 
-        this.$container.append(this.templateStats);
-        
-        this.initFilter();
+        this.$container.html(arrayGrid.join(''));        
     }
 
     initFilter() {
-        this.$searchInput.on('keyup', () => {
+        this.$searchInput.on('keypress', () => {
             this.newArray = [];
 
             this.array.forEach(item => {
@@ -109,11 +125,10 @@ class Users {
                     return;
                 }
             })
-            this.newArray;
-            this.initGrid();
+            this.initGrid(this.newArray);
         })
     }
 
 }
 
-new Users($('body'));
+new Users($('.root'));

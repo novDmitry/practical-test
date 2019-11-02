@@ -1,9 +1,15 @@
+body {
+    background: #c5c5c5;
+    font-family: Montserrat;
+    font-size: 16px;
+}
+
 .section {
     width: 100%;
 }
 
 .container {
-    width: 80%;
+    width: 40%;
     margin: auto;
 }
 
@@ -12,7 +18,124 @@
     justify-content: center;
 }
 
-.users__item {
+.user {
+    animation: show .8s forwards ease;
+    overflow: hidden;
+    height: 128px;
+    border-radius: 10px;
+    margin: 20px 0;
+    font-weight: 600;
     display: flex;
-    background-color: rgb(78, 231, 111);
+    background-color: #1e826a;
+    color: #dcdcdc;
+}
+
+.user__info-block {
+    padding: 10px;
+}
+
+
+.users-stats {
+    width: auto;
+    color: #dcdcdc;
+    background-color: #1e826a;
+    padding: 10px;
+    font-weight: 600;
+    margin: 5px 0;
+    border-radius: 10px;
+
+}
+
+.button {
+    font-family: Montserrat;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    outline: none;
+    width: auto;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 0 20px;
+    height: 60px;
+    background-color: #8BC34A;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    position: absolute;
+    transition: opacity .3s;
+}
+
+.button.load {
+    animation: load 5s forwards;
+}
+
+.button.load-end {
+    opacity: 0;
+}
+
+.button.load::before {
+    opacity: 1;
+    animation: spin 8s infinite ease;
+}
+
+.button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 25px;
+    height: 25px;
+    border: 4px solid #ffffff;
+    border-right-color: transparent;
+    border-radius: 50%;
+    opacity: 0;
+}
+
+@keyframes show {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes load {
+    0% {
+        font-size: 0;
+        width: 150px;
+    }
+    10% {
+        border-radius: 50%;
+        font-size: 0;
+        width: 60px;
+    }
+    100% {
+        border-radius: 50%;
+        font-size: 0;
+        width: 60px;
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    25% {
+        transform: translate(-50%, -50%) rotate(1080deg);
+    }
+    50% {
+        transform: translate(-50%, -50%) rotate(2070deg);
+    }
+    75% {
+        transform: translate(-50%, -50%) rotate(2970deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(3960deg);
+    }
 }
