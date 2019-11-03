@@ -68,10 +68,10 @@ class Users {
                                         ${element.location.street.number}
                                     </div>
                                     <div class='user__info'>
-                                        ${new Date(element.dob.date).toLocaleDateString()}
+                                        Date of Birth - ${new Date(element.dob.date).toLocaleDateString()}
                                     </div>
                                     <div class='user__info'>
-                                        ${new Date(element.registered.date).toLocaleDateString()}
+                                        Date of Registered - ${new Date(element.registered.date).toLocaleDateString()}
                                     </div>
                                 </div>
                             </div>
@@ -87,7 +87,7 @@ class Users {
             if (!arrayNat.includes(element.nat)) {
                 arrayNat.push(element.nat);
                 arrayNatLenght = array.filter(item => item.nat === element.nat);
-                templateNat += `<div class='users-stats'>${arrayNat[indexNat++] + ` ` + arrayNatLenght.length}</div>`;
+                templateNat += `<div class='users-stats'>Nationality ${arrayNat[indexNat++] + ` - ` + arrayNatLenght.length}</div>`;
             }
 
         });

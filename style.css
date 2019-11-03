@@ -10,6 +10,7 @@ body {
 
 .container {
     width: 40%;
+    min-width: 310px;
     margin: auto;
 }
 
@@ -21,11 +22,12 @@ body {
 .user {
     animation: show .8s forwards ease;
     overflow: hidden;
-    height: 128px;
+    min-height: 128px;
     border-radius: 10px;
     margin: 20px 0;
     font-weight: 600;
     display: flex;
+    flex-wrap: wrap;
     background-color: #1e826a;
     color: #dcdcdc;
 }
