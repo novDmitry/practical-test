@@ -1,8 +1,9 @@
 class Users {
     constructor($root) {
-        this.$button = $root.find('[data-users-load]');
-        this.$container = $root.find('[data-container]');
-        this.$searchInput = $root.find('[data-search]');
+        this.$root = $root;
+        this.$button = this.$root.find('[data-users-load]');
+        this.$container = this.$root.find('[data-container]');
+        this.$searchInput = this.$root.find('[data-search]');
 
         this.loadUsers();
     }
@@ -11,22 +12,33 @@ class Users {
         this.$button.on('click', () => {
             this.preloader(true)
 
-            fetch(`https://randomuser.me/api/?results=${Math.floor(Math.random() * 5)}`).then(response => response.json()).then(response => {
+            fetch(`https://randomuser.me/api/?results=${this.getRandom(0, 100)}`).then(response => response.json()).then(response => {
                 this.array = response.results;
                 setTimeout(() => {
-                    this.preloader(false)
+                    this.preloader(false, `load-end`)
                     this.initGrid(this.array);
+                    this.$root.removeClass('_hide');
                     this.initFilter();
                 }, 1000)
-            });
+            }).catch(() => this.preloader(false, `error`));
         })
+    }
+
+    getRandom(min, max) {
+        let random;
+        if (min || max) {
+            random = Math.floor(Math.random() * (max - min) + min);
+        } else {
+            random = Math.floor(Math.random() * 100);
+        }
+        return random;
     }
 
     preloader(state, type) {
         if (state) {
             this.$button.addClass('load');
         } else {
-            this.$button.addClass('load-end');
+            this.$button.addClass(type);
         }
     }
 
@@ -34,15 +46,15 @@ class Users {
         let arrayGrid = [];
         let template = '';
 
-        let arrayMan = [];
-        let arrayWoman = [];
-
         let arrayNat = [];
         let arrayNatLenght = [];
         let templateNat = '';
         let indexNat = 0;
+        
+        this.arrayMan = [];
+        this.arrayWoman = [];
 
-        array.forEach((element, i) => {
+        array.forEach((element) => {
             template += `
                             <div class='user'>
                                 <div class='user__img'>
@@ -77,34 +89,28 @@ class Users {
                             </div>
                         `;
 
-
-            if (element.gender === 'male') {
-                arrayMan.push(element);
-            } else if (element.gender === 'female') {
-                arrayWoman.push(element)
-            }
+            this.setGender(element);
 
             if (!arrayNat.includes(element.nat)) {
                 arrayNat.push(element.nat);
                 arrayNatLenght = array.filter(item => item.nat === element.nat);
                 templateNat += `<div class='users-stats'>Nationality ${arrayNat[indexNat++] + ` - ` + arrayNatLenght.length}</div>`;
             }
-
         });
 
         let compareGender;
-        if (arrayMan.length === arrayWoman.length) {
+        if (this.arrayMan.length === this.arrayWoman.length) {
             compareGender = `Men and women is equal`;
-        } else if (arrayMan.length > arrayWoman.length) {
+        } else if (this.arrayMan.length > this.arrayWoman.length) {
             compareGender = `More men`;
-        } else if (arrayMan.length < arrayWoman.length) {
+        } else if (this.arrayMan.length < this.arrayWoman.length) {
             compareGender = `More woman`;
         }
 
         let templateStats = `
                             <div class='users-stats'>All users - ${array.length}</div>
-                            <div class='users-stats'>Man - ${arrayMan.length}</div>
-                            <div class='users-stats'>Woman - ${arrayWoman.length}</div>
+                            <div class='users-stats'>Man - ${this.arrayMan.length}</div>
+                            <div class='users-stats'>Women - ${this.arrayWoman.length}</div>
                             <div class='users-stats'>${compareGender}</div>
                         `;
 
@@ -115,16 +121,23 @@ class Users {
         this.$container.html(arrayGrid.join(''));        
     }
 
-    initFilter() {
-        this.$searchInput.on('keypress', () => {
-            this.newArray = [];
+    setGender(element) {
+        if (element.gender === 'male') {
+            this.arrayMan.push(element);
+        } else if (element.gender === 'female') {
+            this.arrayWoman.push(element)
+        }
+    }
 
+    initFilter() {
+        this.$searchInput.on('keyup', (e) => {
+            this.newArray = [];
             this.array.forEach(item => {
-                if (!item.name.first.indexOf(this.$searchInput.val())) {
+                if (!item.name.first.indexOf(e.target.value)) {
                     this.newArray.push(item);
                     return;
                 }
-            })
+            });
             this.initGrid(this.newArray);
         })
     }
