@@ -4,6 +4,7 @@ class Users {
         this.$button = this.$root.find('[data-users-load]');
         this.$container = this.$root.find('[data-container]');
         this.$searchInput = this.$root.find('[data-search]');
+        this.$sort = this.$root.find('[data-sort]');
 
         this.loadUsers();
     }
@@ -14,6 +15,8 @@ class Users {
 
             fetch(`https://randomuser.me/api/?results=${this.getRandom(0, 100)}`).then(response => response.json()).then(response => {
                 this.array = response.results;
+                console.log('this.array', this.array)
+
                 setTimeout(() => {
                     this.preloader(false, `load-end`)
                     this.initGrid(this.array);
@@ -130,16 +133,57 @@ class Users {
     }
 
     initFilter() {
+        this.initSearch();
+        this.initSort(this.array);
+    }
+
+    initSearch() {
+        let clearSearchHandler;
+
         this.$searchInput.on('keyup', (e) => {
-            this.newArray = [];
-            this.array.forEach(item => {
-                if (!item.name.first.indexOf(e.target.value)) {
-                    this.newArray.push(item);
-                    return;
-                }
-            });
-            this.initGrid(this.newArray);
-        })
+            clearTimeout(clearSearchHandler);
+
+            clearSearchHandler = setTimeout(() => {
+                this.newArray = this.array.filter(item => {
+                    return this.searchConfig(
+                        item.name.first, 
+                        item.name.last, 
+                        item.phone, 
+                        item.email).toLowerCase().includes(e.target.value.toLowerCase());
+                });
+
+                this.initGrid(this.newArray);
+            }, 400);
+        });
+    }
+
+    searchConfig(...elments) {
+        return elments.join(' ');
+    }
+
+    initSort(array) {
+        this.sortState = false;
+        this.newArray = array;
+
+        this.$sort.on('click', () => {
+            if (!this.sortState) {
+                this.sortState = true
+
+                this.$sort.addClass('active');
+                this.newArray = array.sort((a,b) => {
+                    return a.name.first.localeCompare(b.name.first);
+                });
+                this.initGrid(this.newArray);
+            } else {
+                this.sortState = false
+
+                this.$sort.removeClass('active');
+                this.newArray = array.sort((a,b) => {
+                    return b.name.first.localeCompare(a.name.first);
+                });
+                this.initGrid(this.newArray);
+            }
+        });
     }
 
 }
